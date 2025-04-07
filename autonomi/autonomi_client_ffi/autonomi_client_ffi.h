@@ -3,8 +3,6 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-int8_t *get_cost_string(const int8_t *cost_str);
-
 void autonomi_free_string(char *ptr);
 
 void autonomi_free_bytes(uint8_t *ptr, uintptr_t len);
@@ -37,7 +35,7 @@ char *autonomi_client_data_put_public(void *client,
                                       const uint8_t *data,
                                       uintptr_t data_len,
                                       void *payment,
-                                      char *out_cost,
+                                      char **out_cost,
                                       void **out_addr);
 
 /**
