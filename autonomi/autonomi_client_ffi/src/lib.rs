@@ -37,8 +37,15 @@ fn get_cost_string_from_string(s: String) -> *mut c_char {
     CString::new(s).unwrap().into_raw()
 }
 
-fn get_cost_string(s: String) -> *mut i8 {
-    CString::new(s).unwrap().into_raw()
+pub extern "C" fn get_cost_string(cost_str: *const i8) -> *mut c_char {
+    if cost_str.is_null() {
+        return get_cost_string_from_string(String::from("ERROR: Null pointer provided"));
+    }
+    
+    let cost = unsafe { std::ffi::CStr::from_ptr(cost_str).to_str().unwrap() };
+    
+    let c_string = CString::new(cost).unwrap();
+    c_string.into_raw()
 }
 
 // Helper to check if a string starts with "ERROR:"
@@ -245,17 +252,16 @@ pub extern "C" fn autonomi_client_data_put(
     data: *const u8,
     data_len: usize,
     payment: *mut c_void,
-    out_cost: *mut c_char,
+    out_cost: *mut *mut c_char,
     out_data_map: *mut *mut c_void
 ) -> *mut c_char {
     if client.is_null() || data.is_null() || payment.is_null() || out_cost.is_null() || out_data_map.is_null() {
-        return get_cost_string(String::from("ERROR: Null pointer provided"));
+        return get_cost_string_from_string(String::from("ERROR: Null pointer provided"));
     }
     
     let client = unsafe { &*(client as *const Client) };
     let payment = unsafe { &*(payment as *const PaymentOption) };
     
-    // Copy data into a Vec<u8>
     let data_vec = unsafe { std::slice::from_raw_parts(data, data_len).to_vec() };
     let bytes = Bytes::from(data_vec);
     
@@ -268,18 +274,18 @@ pub extern "C" fn autonomi_client_data_put(
         Ok((cost, data_map)) => {
             let cost_str = cost.to_string();
             unsafe { 
-                *out_cost = get_cost_string(cost_str);
+                *out_cost = get_cost_string_from_string(cost_str);
                 let data_map_box = Box::new(data_map);
                 *out_data_map = Box::into_raw(data_map_box) as *mut c_void;
             }
-            get_cost_string(String::from("SUCCESS"))
+            get_cost_string_from_string(String::from("SUCCESS"))
         },
         Err(e) => {
             unsafe { 
                 *out_cost = std::ptr::null_mut();
                 *out_data_map = std::ptr::null_mut();
             }
-            get_cost_string(format!("ERROR: {}", e))
+            get_cost_string_from_string(format!("ERROR: {}", e))
         }
     }
 }
@@ -349,11 +355,11 @@ pub extern "C" fn autonomi_client_dir_upload_public(
     client: *mut c_void,
     dir_path: *const c_char,
     payment: *mut c_void,
-    out_cost: *mut c_char,
+    out_cost: *mut *mut c_char,
     out_addr: *mut *mut c_void
 ) -> *mut c_char {
     if client.is_null() || dir_path.is_null() || payment.is_null() || out_cost.is_null() || out_addr.is_null() {
-        return get_cost_string(String::from("ERROR: Null pointer provided"));
+        return get_cost_string_from_string(String::from("ERROR: Null pointer provided"));
     }
     
     let client = unsafe { &*(client as *const Client) };
@@ -362,7 +368,7 @@ pub extern "C" fn autonomi_client_dir_upload_public(
     let dir_path_cstr = unsafe { CStr::from_ptr(dir_path) };
     let dir_path_str = match dir_path_cstr.to_str() {
         Ok(s) => s,
-        Err(_) => return get_cost_string(String::from("ERROR: Invalid directory path")),
+        Err(_) => return get_cost_string_from_string(String::from("ERROR: Invalid directory path")),
     };
     
     let path = PathBuf::from(dir_path_str);
@@ -376,18 +382,18 @@ pub extern "C" fn autonomi_client_dir_upload_public(
         Ok((cost, addr)) => {
             let cost_str = cost.to_string();
             unsafe { 
-                *out_cost = get_cost_string(cost_str);
+                *out_cost = get_cost_string_from_string(cost_str);
                 let addr_box = Box::new(addr);
                 *out_addr = Box::into_raw(addr_box) as *mut c_void;
             }
-            get_cost_string(String::from("SUCCESS"))
+            get_cost_string_from_string(String::from("SUCCESS"))
         },
         Err(e) => {
             unsafe { 
                 *out_cost = std::ptr::null_mut();
                 *out_addr = std::ptr::null_mut();
             }
-            get_cost_string(format!("ERROR: {}", e))
+            get_cost_string_from_string(format!("ERROR: {}", e))
         }
     }
 }
@@ -432,11 +438,11 @@ pub extern "C" fn autonomi_client_dir_upload(
     client: *mut c_void,
     dir_path: *const c_char,
     payment: *mut c_void,
-    out_cost: *mut c_char,
+    out_cost: *mut *mut c_char,
     out_data_map: *mut *mut c_void
 ) -> *mut c_char {
     if client.is_null() || dir_path.is_null() || payment.is_null() || out_cost.is_null() || out_data_map.is_null() {
-        return get_cost_string(String::from("ERROR: Null pointer provided"));
+        return get_cost_string_from_string(String::from("ERROR: Null pointer provided"));
     }
     
     let client = unsafe { &*(client as *const Client) };
@@ -445,7 +451,7 @@ pub extern "C" fn autonomi_client_dir_upload(
     let dir_path_cstr = unsafe { CStr::from_ptr(dir_path) };
     let dir_path_str = match dir_path_cstr.to_str() {
         Ok(s) => s,
-        Err(_) => return get_cost_string(String::from("ERROR: Invalid directory path")),
+        Err(_) => return get_cost_string_from_string(String::from("ERROR: Invalid directory path")),
     };
     
     let path = PathBuf::from(dir_path_str);
@@ -459,18 +465,18 @@ pub extern "C" fn autonomi_client_dir_upload(
         Ok((cost, data_map)) => {
             let cost_str = cost.to_string();
             unsafe { 
-                *out_cost = get_cost_string(cost_str);
+                *out_cost = get_cost_string_from_string(cost_str);
                 let data_map_box = Box::new(data_map);
                 *out_data_map = Box::into_raw(data_map_box) as *mut c_void;
             }
-            get_cost_string(String::from("SUCCESS"))
+            get_cost_string_from_string(String::from("SUCCESS"))
         },
         Err(e) => {
             unsafe { 
                 *out_cost = std::ptr::null_mut();
                 *out_data_map = std::ptr::null_mut();
             }
-            get_cost_string(format!("ERROR: {}", e))
+            get_cost_string_from_string(format!("ERROR: {}", e))
         }
     }
 }

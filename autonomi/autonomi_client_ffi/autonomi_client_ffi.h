@@ -51,7 +51,7 @@ char *autonomi_client_data_put(void *client,
                                const uint8_t *data,
                                uintptr_t data_len,
                                void *payment,
-                               char *out_cost,
+                               char **out_cost,
                                void **out_data_map);
 
 /**
@@ -70,7 +70,7 @@ char *autonomi_client_data_cost(void *client, const uint8_t *data, uintptr_t dat
 char *autonomi_client_dir_upload_public(void *client,
                                         const char *dir_path,
                                         void *payment,
-                                        char *out_cost,
+                                        char **out_cost,
                                         void **out_addr);
 
 /**
@@ -85,7 +85,7 @@ char *autonomi_client_dir_download_public(void *client, void *addr, const char *
 char *autonomi_client_dir_upload(void *client,
                                  const char *dir_path,
                                  void *payment,
-                                 char *out_cost,
+                                 char **out_cost,
                                  void **out_data_map);
 
 /**
