@@ -1,4 +1,5 @@
 use std::{path::PathBuf, ffi::{c_char, CString, CStr}, os::raw::{c_void}};
+use ruint::Uint;
 use std::str::FromStr;
 use std::ptr;
 use autonomi_client::client::data::DataAddress;

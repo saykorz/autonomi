@@ -1367,6 +1367,7 @@ dependencies = [
  "blst",
  "cbindgen",
  "libp2p",
+ "ruint",
  "tokio",
  "xor_name",
 ]

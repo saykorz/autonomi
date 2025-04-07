@@ -4,6 +4,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+ruint = "1.14.0"
 blst = "0.3.13"
 libp2p = "0.55.0"
 xor_name = "5.0.0"
