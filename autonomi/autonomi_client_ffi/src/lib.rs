@@ -681,9 +681,12 @@ pub extern "C" fn autonomi_wallet_transfer_tokens(
         Err(_) => return get_cost_string_from_string(String::from("ERROR: Invalid amount format")),
     };
     
+    // Преобразуване на u64 към ruint::Uint<256, 4>
+    let amount = ruint::Uint::<256, 4>::from(amount);
+    
     let runtime = tokio::runtime::Runtime::new().unwrap();
     let result = runtime.block_on(async {
-        wallet.transfer_tokens(to_address_str.parse().unwrap(), amount.into()).await
+        wallet.transfer_tokens(to_address_str.parse().unwrap(), amount).await  // <-- Use amount directly
     });
     
     match result {
