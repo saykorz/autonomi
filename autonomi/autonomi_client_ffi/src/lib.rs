@@ -34,10 +34,11 @@ fn result_to_c_char<T, E: std::fmt::Display>(result: Result<T, E>, success_fn: i
 
 // Вътрешна функция, която приема String и връща *mut i8
 #[no_mangle]
-fn get_cost_string_from_string(s: String) -> *mut c_char {
+pub extern "C" fn get_cost_string_from_string(s: String) -> *mut c_char {
     CString::new(s).unwrap().into_raw()
 }
 
+#[no_mangle]
 pub extern "C" fn get_cost_string(cost_str: *const i8) -> *mut c_char {
     if cost_str.is_null() {
         return get_cost_string_from_string(String::from("ERROR: Null pointer provided"));
