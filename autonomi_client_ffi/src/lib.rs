@@ -2,11 +2,11 @@ use std::{path::PathBuf, ffi::{c_char, CString, CStr}, os::raw::{c_void}};
 
 
 use std::ptr;
-use crate::client::high_level::data::DataAddress;
-use crate::client::high_level::files::archive_private::PrivateArchiveDataMap;
-use crate::client::high_level::files::archive_public::ArchiveAddress;
-use crate::client::high_level::data::PointerTarget;
-use crate::{
+use autonomi_client::client::high_level::data::DataAddress;
+use autonomi_client::client::high_level::files::archive_private::PrivateArchiveDataMap;
+use autonomi_client::client::high_level::files::archive_public::ArchiveAddress;
+use autonomi_client::client::high_level::data::PointerTarget;
+use autonomi_client::{
     client::{
         chunk::DataMapChunk,
         payment::PaymentOption,
@@ -16,8 +16,8 @@ use crate::{
     register::{RegisterAddress, RegisterHistory},
     Client, ClientConfig,
 };
-use crate::{Bytes, Network, Wallet};
-use crate::{
+use autonomi_client::{Bytes, Network, Wallet};
+use autonomi_client::{
     Chunk, ChunkAddress, GraphEntry, GraphEntryAddress, Pointer, PointerAddress, Scratchpad,
     ScratchpadAddress,
 };
