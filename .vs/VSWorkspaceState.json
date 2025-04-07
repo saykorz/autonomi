@@ -1,0 +1,16 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\python",
+    "\\python\\examples",
+    "\\src",
+    "\\src\\client\\data_types",
+    "\\src\\client\\high_level",
+    "\\src\\client\\high_level\\data",
+    "\\src\\client\\high_level\\files",
+    "\\src\\client\\high_level\\register",
+    "\\src\\client\\high_level\\vault"
+  ],
+  "SelectedNode": "\\setup.py",
+  "PreviewInSolutionExplorer": false
+}

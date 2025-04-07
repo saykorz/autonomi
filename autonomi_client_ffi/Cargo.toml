@@ -1,0 +1,17 @@
+[package]
+name = "autonomi_client_ffi"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+blst = "0.3.13"
+libp2p = "0.55.0"
+xor_name = "5.0.0"
+tokio = { version = "1.35.0", features = ["sync", "fs"] }
+autonomi_client = { path = "../", package = "autonomi" }
+
+[lib]
+crate-type = ["cdylib"]
+
+[build-dependencies]
+cbindgen = "0.20.0"
