@@ -33,7 +33,7 @@ fn result_to_c_char<T, E: std::fmt::Display>(result: Result<T, E>, success_fn: i
 }
 
 // Вътрешна функция, която приема String и връща *mut i8
-fn get_cost_string_from_string(s: String) -> *mut i8 {
+fn get_cost_string_from_string(s: String) -> *mut c_char {
     CString::new(s).unwrap().into_raw()
 }
 
@@ -160,46 +160,45 @@ pub extern "C" fn autonomi_client_init_with_config(config: *mut c_void) -> *mut 
 
 /// Upload public data to the network.
 #[no_mangle]
-pub extern "C" fn autonomi_client_data_put(
+pub extern "C" fn autonomi_client_data_put_public(
     client: *mut c_void,
     data: *const u8,
     data_len: usize,
     payment: *mut c_void,
     out_cost: *mut *mut c_char,
-    out_data_map: *mut *mut c_void
+    out_addr: *mut *mut c_void
 ) -> *mut c_char {
-    if client.is_null() || data.is_null() || payment.is_null() || out_cost.is_null() || out_data_map.is_null() {
-        return get_cost_string(String::from("ERROR: Null pointer provided"));
+    if client.is_null() || data.is_null() || payment.is_null() || out_cost.is_null() || out_addr.is_null() {
+        return get_cost_string_from_string(String::from("ERROR: Null pointer provided"));
     }
     
     let client = unsafe { &*(client as *const Client) };
     let payment = unsafe { &*(payment as *const PaymentOption) };
     
-    // Copy data into a Vec<u8>
     let data_vec = unsafe { std::slice::from_raw_parts(data, data_len).to_vec() };
     let bytes = Bytes::from(data_vec);
     
     let runtime = tokio::runtime::Runtime::new().unwrap();
     let result = runtime.block_on(async {
-        client.data_put(bytes, payment.clone()).await
+        client.data_put_public(bytes, payment.clone()).await
     });
     
     match result {
-        Ok((cost, data_map)) => {
+        Ok((cost, addr)) => {
             let cost_str = cost.to_string();
             unsafe { 
-                *out_cost = get_cost_string(cost_str);
-                let data_map_box = Box::new(data_map);
-                *out_data_map = Box::into_raw(data_map_box) as *mut c_void;
+                *out_cost = get_cost_string_from_string(cost_str);
+                let addr_box = Box::new(addr);
+                *out_addr = Box::into_raw(addr_box) as *mut c_void;
             }
-            get_cost_string(String::from("SUCCESS"))
+            get_cost_string_from_string(String::from("SUCCESS"))
         },
         Err(e) => {
             unsafe { 
                 *out_cost = std::ptr::null_mut();
-                *out_data_map = std::ptr::null_mut();
+                *out_addr = std::ptr::null_mut();
             }
-            get_cost_string(format!("ERROR: {}", e))
+            get_cost_string_from_string(format!("ERROR: {}", e))
         }
     }
 }
