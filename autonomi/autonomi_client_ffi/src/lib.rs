@@ -33,6 +33,7 @@ fn result_to_c_char<T, E: std::fmt::Display>(result: Result<T, E>, success_fn: i
 }
 
 // Вътрешна функция, която приема String и връща *mut i8
+#[no_mangle]
 fn get_cost_string_from_string(s: String) -> *mut c_char {
     CString::new(s).unwrap().into_raw()
 }
