@@ -1,0 +1,83 @@
+[workspace]
+members = [
+    "autonomi_client_ffi"
+]
+lints = {}
+
+[package]
+authors = ["MaidSafe Developers <dev@maidsafe.net>"]
+description = "Autonomi client API"
+name = "autonomi"
+license = "GPL-3.0"
+version = "0.4.3"
+edition = "2021"
+homepage = "https://maidsafe.net"
+readme = "README.md"
+repository = "https://github.com/maidsafe/autonomi"
+
+[lib]
+name = "autonomi"
+crate-type = ["cdylib", "rlib"]
+
+[[example]]
+name = "data_and_archive"
+
+[[example]]
+name = "put_and_dir_upload"
+
+[features]
+default = []
+external-signer = ["ant-evm/external-signer"]
+extension-module = ["pyo3/extension-module", "pyo3-async-runtimes"]
+loud = []
+
+[dependencies]
+ant-bootstrap = { path = "../ant-bootstrap", version = "0.2.0" }
+ant-evm = { path = "../ant-evm", version = "0.1.12" }
+ant-networking = { path = "../ant-networking", version = "0.3.9" }
+ant-protocol = { path = "../ant-protocol", version = "1.0.3" }
+bip39 = "2.0.0"
+blst = "0.3.13"
+blstrs = "0.7.1"
+bls = { package = "blsttc", version = "8.0.1" }
+bytes = { version = "1.0.1", features = ["serde"] }
+const-hex = "1.12.0"
+eyre = "0.6.5"
+futures = "0.3.30"
+hex = "~0.4.3"
+libp2p = "0.55.0"
+pyo3 = { version = "0.23.4", optional = true, features = ["extension-module", "abi3-py38"] }
+pyo3-async-runtimes = { version = "0.23", optional = true, features = ["tokio-runtime"] }
+rand = "0.8.5"
+rayon = "1.8.0"
+rmp-serde = "1.1.1"
+self_encryption = "~0.30.0"
+serde = { version = "1.0.133", features = ["derive", "rc"] }
+sha2 = "0.10.6"
+thiserror = "1.0.23"
+tokio = { version = "1.35.0", features = ["sync", "fs"] }
+tracing = { version = "~0.1.26" }
+walkdir = "2.5.0"
+xor_name = "5.0.0"
+
+[dev-dependencies]
+alloy = { version = "0.7.3", default-features = false, features = ["contract", "json-rpc", "network", "node-bindings", "provider-http", "reqwest-rustls-tls", "rpc-client", "rpc-types", "signer-local", "std"] }
+ant-logging = { path = "../ant-logging", version = "0.2.48" }
+ant-node = { path = "../ant-node", version = "0.3.7" }
+evmlib = { path = "../evmlib", version = "0.2.0" }
+eyre = "0.6.5"
+serial_test = "3.2.0"
+sha2 = "0.10.6"
+# Do not specify the version field. Release process expects even the local dev deps to be published.
+# Removing the version field is a workaround.
+test-utils = { path = "../test-utils" }
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
+[lints]
+workspace = true
+
+[package.metadata.docs.rs]
+all-features = true
+rustdoc-args = ["--cfg", "docsrs"]
+# Adds snippets from the `examples` dir to items if relevant
+cargo-args = ["-Zunstable-options", "-Zrustdoc-scrape-examples"]

@@ -1,0 +1,95 @@
+[package]
+authors = ["MaidSafe Developers <dev@maidsafe.net>"]
+description = "The Autonomi node binary"
+name = "ant-node"
+version = "0.3.9"
+edition = "2021"
+license = "GPL-3.0"
+homepage = "https://maidsafe.net"
+readme = "README.md"
+repository = "https://github.com/maidsafe/autonomi"
+
+[[bin]]
+name = "antnode"
+path = "src/bin/antnode/main.rs"
+
+[features]
+default = ["open-metrics"]
+extension-module = ["pyo3/extension-module", "pyo3-async-runtimes"]
+loud = ["ant-networking/loud"] # loud mode: print important messages to console
+nightly = []
+open-metrics = ["ant-networking/open-metrics", "prometheus-client"]
+otlp = ["ant-logging/otlp"]
+
+[dependencies]
+ant-bootstrap = { path = "../ant-bootstrap", version = "0.2.0" }
+ant-build-info = { path = "../ant-build-info", version = "0.1.26" }
+ant-evm = { path = "../ant-evm", version = "0.1.12" }
+ant-logging = { path = "../ant-logging", version = "0.2.48", features = ["process-metrics"] }
+ant-networking = { path = "../ant-networking", version = "0.3.9" }
+ant-protocol = { path = "../ant-protocol", version = "1.0.3" }
+ant-service-management = { path = "../ant-service-management", version = "0.4.11" }
+async-trait = "0.1"
+bls = { package = "blsttc", version = "8.0.1" }
+bytes = { version = "1.0.1", features = ["serde"] }
+clap = { version = "4.2.1", features = ["derive"] }
+crdts = { version = "7.3", default-features = false, features = ["merkle"] }
+chrono = "~0.4.19"
+color-eyre = "0.6.3"
+const-hex = "1.12.0"
+custom_debug = "~0.6.1"
+dirs-next = "~2.0.0"
+eyre = "0.6.8"
+file-rotate = "0.7.3"
+futures = "~0.3.13"
+hex = "~0.4.3"
+itertools = "~0.12.1"
+libp2p = { version = "0.55.0", features = ["tokio", "dns", "kad", "macros"] }
+num-traits = "0.2"
+prometheus-client = { version = "0.22", optional = true }
+# watch out updating this, protoc compiler needs to be installed on all build systems
+# arm builds + musl are very problematic
+prost = { version = "0.9" }
+pyo3 = { version = "0.23.4", features = ["extension-module", "abi3-py38"], optional = true }
+pyo3-async-runtimes = { version = "0.23", features = ["tokio-runtime"], optional = true }
+rand = { version = "~0.8.5", features = ["small_rng"] }
+rmp-serde = "1.1.1"
+rayon = "1.8.0"
+self_encryption = "~0.30.0"
+serde = { version = "1.0.133", features = ["derive", "rc"] }
+strum = { version = "0.26.2", features = ["derive"] }
+thiserror = "1.0.23"
+tokio = { version = "1.32.0", features = [
+    "io-util",
+    "macros",
+    "parking_lot",
+    "rt",
+    "sync",
+    "time",
+    "signal",
+] }
+tokio-stream = { version = "~0.1.12" }
+tonic = { version = "0.6.2" }
+tracing = { version = "~0.1.26" }
+tracing-appender = "~0.2.0"
+tracing-opentelemetry = { version = "0.21", optional = true }
+tracing-subscriber = { version = "0.3.17", features = ["env-filter"] }
+walkdir = "~2.5.0"
+xor_name = "5.0.0"
+
+[dev-dependencies]
+ant-protocol = { path = "../ant-protocol", version = "1.0.3", features = ["rpc"] }
+assert_fs = "1.0.0"
+evmlib = { path = "../evmlib", version = "0.2.1" }
+autonomi = { path = "../autonomi", version = "0.4.3" }
+reqwest = { version = "0.12.2", default-features = false, features = [
+    "rustls-tls-manual-roots",
+] }
+serde_json = "1.0"
+tempfile = "3.6.0"
+# Do not specify the version field. Release process expects even the local dev deps to be published.
+# Removing the version field is a workaround.
+test-utils = { path = "../test-utils" }
+
+[lints]
+workspace = true
