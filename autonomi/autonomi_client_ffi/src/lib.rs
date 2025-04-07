@@ -540,7 +540,7 @@ pub extern "C" fn autonomi_network_default() -> *mut c_void {
 /// Get the Arbitrum Sepolia network
 #[no_mangle]
 pub extern "C" fn autonomi_network_arbitrum_sepolia() -> *mut c_void {
-    let network = Network::arbitrum_sepolia();
+    let network = Network::ArbitrumSepolia;
     Box::into_raw(Box::new(network)) as *mut c_void
 }
 
@@ -662,7 +662,7 @@ pub extern "C" fn autonomi_wallet_transfer_tokens(
     amount: *const c_char
 ) -> *mut c_char {
     if wallet.is_null() || to_address.is_null() || amount.is_null() {
-        return get_cost_string(String::from("ERROR: Null pointer provided"));
+        return get_cost_string_from_string(String::from("ERROR: Null pointer provided"));
     }
     
     let wallet = unsafe { &*(wallet as *const Wallet) };
@@ -670,29 +670,29 @@ pub extern "C" fn autonomi_wallet_transfer_tokens(
     let to_address_cstr = unsafe { CStr::from_ptr(to_address) };
     let to_address_str = match to_address_cstr.to_str() {
         Ok(s) => s,
-        Err(_) => return get_cost_string(String::from("ERROR: Invalid to_address")),
+        Err(_) => return get_cost_string_from_string(String::from("ERROR: Invalid to_address")),
     };
     
     let amount_cstr = unsafe { CStr::from_ptr(amount) };
     let amount_str = match amount_cstr.to_str() {
         Ok(s) => s,
-        Err(_) => return get_cost_string(String::from("ERROR: Invalid amount")),
+        Err(_) => return get_cost_string_from_string(String::from("ERROR: Invalid amount")),
     };
     
-    // Parse amount from string
+    // Преобразуване на amount от низ към u64
     let amount = match amount_str.parse::<u64>() {
         Ok(a) => a,
-        Err(_) => return get_cost_string(String::from("ERROR: Invalid amount format")),
+        Err(_) => return get_cost_string_from_string(String::from("ERROR: Invalid amount format")),
     };
     
     let runtime = tokio::runtime::Runtime::new().unwrap();
     let result = runtime.block_on(async {
-        wallet.transfer_tokens(to_address_str, amount.into()).await
+        wallet.transfer_tokens(to_address_str.parse().unwrap(), amount.into()).await
     });
     
     match result {
-        Ok(_) => get_cost_string(String::from("SUCCESS")),
-        Err(e) => get_cost_string(format!("ERROR: {}", e)),
+        Ok(_) => get_cost_string_from_string(String::from("SUCCESS")),
+        Err(e) => get_cost_string_from_string(format!("ERROR: {}", e)),
     }
 }
 
