@@ -3,6 +3,10 @@
 #include <stdint.h>
 #include <stdlib.h>
 
+typedef struct String String;
+
+char *get_cost_string_from_string(struct String cost_str);
+
 void autonomi_free_string(char *ptr);
 
 void autonomi_free_bytes(uint8_t *ptr, uintptr_t len);

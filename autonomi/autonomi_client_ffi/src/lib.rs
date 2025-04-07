@@ -27,27 +27,15 @@ use xor_name::XorName;
 
 fn result_to_c_char<T, E: std::fmt::Display>(result: Result<T, E>, success_fn: impl FnOnce(T) -> String) -> *mut c_char {
     match result {
-        Ok(value) => get_cost_string(success_fn(value)),
-        Err(e) => get_cost_string(format!("ERROR: {}", e)),
+        Ok(value) => get_cost_string_from_string(success_fn(value)),
+		Err(e) => get_cost_string_from_string(format!("ERROR: {}", e)),
     }
 }
 
 // Вътрешна функция, която приема String и връща *mut i8
 #[no_mangle]
-pub extern "C" fn get_cost_string_from_string(s: String) -> *mut c_char {
-    CString::new(s).unwrap().into_raw()
-}
-
-#[no_mangle]
-pub extern "C" fn get_cost_string(cost_str: *const i8) -> *mut c_char {
-    if cost_str.is_null() {
-        return get_cost_string_from_string(String::from("ERROR: Null pointer provided"));
-    }
-    
-    let cost = unsafe { std::ffi::CStr::from_ptr(cost_str).to_str().unwrap() };
-    
-    let c_string = CString::new(cost).unwrap();
-    c_string.into_raw()
+pub extern "C" fn get_cost_string_from_string(cost_str: String) -> *mut c_char {
+    CString::new(cost_str).unwrap().into_raw()
 }
 
 // Helper to check if a string starts with "ERROR:"
@@ -334,7 +322,7 @@ pub extern "C" fn autonomi_client_data_cost(
     data_len: usize
 ) -> *mut c_char {
     if client.is_null() || data.is_null() {
-        return get_cost_string(String::from("ERROR: Null pointer provided"));
+        return get_cost_string_from_string(String::from("ERROR: Null pointer provided"));
     }
     
     let client = unsafe { &*(client as *const Client) };
@@ -408,7 +396,7 @@ pub extern "C" fn autonomi_client_dir_download_public(
     dir_path: *const c_char
 ) -> *mut c_char {
     if client.is_null() || addr.is_null() || dir_path.is_null() {
-        return get_cost_string(String::from("ERROR: Null pointer provided"));
+        return get_cost_string_from_string(String::from("ERROR: Null pointer provided"));
     }
     
     let client = unsafe { &*(client as *const Client) };
@@ -417,7 +405,7 @@ pub extern "C" fn autonomi_client_dir_download_public(
     let dir_path_cstr = unsafe { CStr::from_ptr(dir_path) };
     let dir_path_str = match dir_path_cstr.to_str() {
         Ok(s) => s,
-        Err(_) => return get_cost_string(String::from("ERROR: Invalid directory path")),
+        Err(_) => return get_cost_string_from_string(String::from("ERROR: Invalid directory path")),
     };
     
     let path = PathBuf::from(dir_path_str);
@@ -428,8 +416,8 @@ pub extern "C" fn autonomi_client_dir_download_public(
     });
     
     match result {
-        Ok(_) => get_cost_string(String::from("SUCCESS")),
-        Err(e) => get_cost_string(format!("ERROR: {}", e)),
+        Ok(_) => get_cost_string_from_string(String::from("SUCCESS")),
+        Err(e) => get_cost_string_from_string(format!("ERROR: {}", e)),
     }
 }
 
@@ -601,7 +589,7 @@ pub extern "C" fn autonomi_wallet_from_private_key(network: *mut c_void, private
 #[no_mangle]
 pub extern "C" fn autonomi_wallet_get_balance(wallet: *mut c_void) -> *mut c_char {
     if wallet.is_null() {
-        return get_cost_string(String::from("ERROR: Null pointer provided"));
+        return get_cost_string_from_string(String::from("ERROR: Null pointer provided"));
     }
     
     let wallet = unsafe { &*(wallet as *const Wallet) };
@@ -618,7 +606,7 @@ pub extern "C" fn autonomi_wallet_get_balance(wallet: *mut c_void) -> *mut c_cha
 #[no_mangle]
 pub extern "C" fn autonomi_wallet_get_balance_of_gas(wallet: *mut c_void) -> *mut c_char {
     if wallet.is_null() {
-        return get_cost_string(String::from("ERROR: Null pointer provided"));
+        return get_cost_string_from_string(String::from("ERROR: Null pointer provided"));
     }
     
     let wallet = unsafe { &*(wallet as *const Wallet) };
@@ -635,11 +623,11 @@ pub extern "C" fn autonomi_wallet_get_balance_of_gas(wallet: *mut c_void) -> *mu
 #[no_mangle]
 pub extern "C" fn autonomi_wallet_address(wallet: *mut c_void) -> *mut c_char {
     if wallet.is_null() {
-        return get_cost_string(String::from("ERROR: Null pointer provided"));
+        return get_cost_string_from_string(String::from("ERROR: Null pointer provided"));
     }
     
     let wallet = unsafe { &*(wallet as *const Wallet) };
-    get_cost_string(wallet.address().to_string())
+    get_cost_string_from_string(wallet.address().to_string())
 }
 
 /// Get the network of a wallet
@@ -659,7 +647,7 @@ pub extern "C" fn autonomi_wallet_network(wallet: *mut c_void) -> *mut c_void {
 #[no_mangle]
 pub extern "C" fn autonomi_wallet_random_private_key() -> *mut c_char {
     let private_key = Wallet::random_private_key();
-    get_cost_string(private_key)
+    get_cost_string_from_string(private_key)
 }
 
 /// Transfer tokens from one wallet to another
@@ -745,11 +733,11 @@ pub extern "C" fn autonomi_payment_option_free(payment: *mut c_void) {
 #[no_mangle]
 pub extern "C" fn autonomi_data_address_to_hex(addr: *mut c_void) -> *mut c_char {
     if addr.is_null() {
-        return get_cost_string(String::from("ERROR: Null pointer provided"));
+        return get_cost_string_from_string(String::from("ERROR: Null pointer provided"));
     }
     
     let addr = unsafe { &*(addr as *const DataAddress) };
-    get_cost_string(addr.to_hex())
+    get_cost_string_from_string(addr.to_hex())
 }
 
 /// Create a DataAddress from a hex string
@@ -787,11 +775,11 @@ pub extern "C" fn autonomi_data_address_free(addr: *mut c_void) {
 #[no_mangle]
 pub extern "C" fn autonomi_archive_address_to_hex(addr: *mut c_void) -> *mut c_char {
     if addr.is_null() {
-        return get_cost_string(String::from("ERROR: Null pointer provided"));
+        return get_cost_string_from_string(String::from("ERROR: Null pointer provided"));
     }
     
     let addr = unsafe { &*(addr as *const ArchiveAddress) };
-    get_cost_string(addr.to_hex())
+    get_cost_string_from_string(addr.to_hex())
 }
 
 /// Create an ArchiveAddress from a hex string
@@ -848,22 +836,22 @@ pub extern "C" fn autonomi_data_map_chunk_from_hex(hex: *const c_char) -> *mut c
 #[no_mangle]
 pub extern "C" fn autonomi_data_map_chunk_to_hex(chunk: *mut c_void) -> *mut c_char {
     if chunk.is_null() {
-        return get_cost_string(String::from("ERROR: Null pointer provided"));
+        return get_cost_string_from_string(String::from("ERROR: Null pointer provided"));
     }
     
     let chunk = unsafe { &*(chunk as *const DataMapChunk) };
-    get_cost_string(chunk.to_hex())
+    get_cost_string_from_string(chunk.to_hex())
 }
 
 /// Get the address of a DataMapChunk
 #[no_mangle]
 pub extern "C" fn autonomi_data_map_chunk_address(chunk: *mut c_void) -> *mut c_char {
     if chunk.is_null() {
-        return get_cost_string(String::from("ERROR: Null pointer provided"));
+        return get_cost_string_from_string(String::from("ERROR: Null pointer provided"));
     }
     
     let chunk = unsafe { &*(chunk as *const DataMapChunk) };
-    get_cost_string(chunk.address().to_string())
+    get_cost_string_from_string(chunk.address().to_string())
 }
 
 /// Free a DataMapChunk instance
@@ -882,11 +870,11 @@ pub extern "C" fn autonomi_data_map_chunk_free(chunk: *mut c_void) {
 #[no_mangle]
 pub extern "C" fn autonomi_private_archive_data_map_to_hex(data_map: *mut c_void) -> *mut c_char {
     if data_map.is_null() {
-        return get_cost_string(String::from("ERROR: Null pointer provided"));
+        return get_cost_string_from_string(String::from("ERROR: Null pointer provided"));
     }
     
     let data_map = unsafe { &*(data_map as *const PrivateArchiveDataMap) };
-    get_cost_string(data_map.to_hex())
+    get_cost_string_from_string(data_map.to_hex())
 }
 
 /// Create a PrivateArchiveDataMap from a hex string
