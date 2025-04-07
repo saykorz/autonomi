@@ -4,7 +4,7 @@ use std::ptr;
 use autonomi_client::client::data::DataAddress;
 use autonomi_client::client::files::archive_private::PrivateArchiveDataMap;
 use autonomi_client::client::files::archive_public::ArchiveAddress;
-use autonomi_client::client::data::PointerTarget;
+use autonomi_client::pointer::PointerTarget;
 use autonomi_client::{
     client::{
         chunk::DataMapChunk,
@@ -21,19 +21,23 @@ use autonomi_client::{
     ScratchpadAddress,
 };
 
-use blst::{PublicKey, SecretKey};
+use blst::min_pk::{PublicKey, SecretKey};
 use libp2p::Multiaddr;
 use xor_name::XorName;
 
 fn result_to_c_char<T, E: std::fmt::Display>(result: Result<T, E>, success_fn: impl FnOnce(T) -> String) -> *mut c_char {
     match result {
-        Ok(value) => get_cost_string_from_string(success_fn(value)),
-        Err(e) => get_cost_string_from_string(format!("ERROR: {}", e)),
+        Ok(value) => get_cost_string(success_fn(value)),
+        Err(e) => get_cost_string(format!("ERROR: {}", e)),
     }
 }
 
 // Вътрешна функция, която приема String и връща *mut i8
 fn get_cost_string_from_string(s: String) -> *mut i8 {
+    CString::new(s).unwrap().into_raw()
+}
+
+fn get_cost_string(s: String) -> *mut i8 {
     CString::new(s).unwrap().into_raw()
 }
 
