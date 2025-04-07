@@ -1,10 +1,10 @@
 use std::{path::PathBuf, ffi::{c_char, CString, CStr}, os::raw::{c_void}};
 use std::str::FromStr;
 use std::ptr;
-use autonomi_client::client::high_level::data::DataAddress;
-use autonomi_client::client::high_level::files::archive_private::PrivateArchiveDataMap;
-use autonomi_client::client::high_level::files::archive_public::ArchiveAddress;
-use autonomi_client::client::high_level::data::PointerTarget;
+use autonomi_client::client::data::DataAddress;
+use autonomi_client::client::files::archive_private::PrivateArchiveDataMap;
+use autonomi_client::client::files::archive_public::ArchiveAddress;
+use autonomi_client::client::data::PointerTarget;
 use autonomi_client::{
     client::{
         chunk::DataMapChunk,
@@ -21,7 +21,7 @@ use autonomi_client::{
     ScratchpadAddress,
 };
 
-use bls::{PublicKey, SecretKey};
+use blst::{PublicKey, SecretKey};
 use libp2p::Multiaddr;
 use xor_name::XorName;
 
@@ -35,13 +35,6 @@ fn result_to_c_char<T, E: std::fmt::Display>(result: Result<T, E>, success_fn: i
 // Вътрешна функция, която приема String и връща *mut i8
 fn get_cost_string_from_string(s: String) -> *mut i8 {
     CString::new(s).unwrap().into_raw()
-}
-
-fn result_to_c_char<T, E: std::fmt::Display>(result: Result<T, E>, success_fn: impl FnOnce(T) -> String) -> *mut c_char {
-    match result {
-        Ok(value) => get_cost_string(success_fn(value)),
-        Err(e) => get_cost_string(format!("ERROR: {}", e)),
-    }
 }
 
 // Helper to check if a string starts with "ERROR:"
