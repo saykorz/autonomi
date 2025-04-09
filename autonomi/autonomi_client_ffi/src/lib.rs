@@ -196,7 +196,7 @@ pub extern "C" fn autonomi_client_data_put_public(
                 *out_cost = std::ptr::null_mut();
                 *out_addr = std::ptr::null_mut();
             }
-            get_cost_string_from_string(format!("ERROR: {}", e))
+            get_cost_string_from_string(format!("ERROR: {} - Payment {:?}", e, payment))
         }
     }
 }
