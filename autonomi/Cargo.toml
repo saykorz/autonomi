@@ -1,9 +1,3 @@
-[workspace]
-members = [
-    "autonomi_client_ffi"
-]
-lints = {}
-
 [package]
 authors = ["MaidSafe Developers <dev@maidsafe.net>"]
 description = "Autonomi client API"

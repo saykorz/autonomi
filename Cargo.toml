@@ -21,6 +21,7 @@ members = [
     "node-launchpad",
     "nodejs",
     "test-utils",
+	"autonomi/autonomi_client_ffi"
 ]
 
 [workspace.lints.rust]
