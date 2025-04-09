@@ -170,6 +170,19 @@ pub extern "C" fn autonomi_client_data_put_public(
         return get_cost_string_from_string(String::from("ERROR: Null pointer provided"));
     }
     
+	if client.is_null() {
+    eprintln!("Client pointer is null.");
+	}
+	if payment.is_null() {
+		eprintln!("PaymentOption pointer is null.");
+	}
+	eprintln!("Data length: {}", data_len);
+	if !data.is_null() && data_len > 0 {
+    eprintln!("Data: {:?}", unsafe { std::slice::from_raw_parts(data, data_len) });
+} else {
+    eprintln!("Invalid data pointer or data length.");
+}
+
     let client = unsafe { &*(client as *const Client) };
     let payment = unsafe { &*(payment as *const PaymentOption) };
     
@@ -196,7 +209,7 @@ pub extern "C" fn autonomi_client_data_put_public(
                 *out_cost = std::ptr::null_mut();
                 *out_addr = std::ptr::null_mut();
             }
-            get_cost_string_from_string(format!("ERROR: {} - Payment {:?}", e, payment))
+            get_cost_string_from_string(format!("ERROR: {}", e))
         }
     }
 }
